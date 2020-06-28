@@ -22,6 +22,8 @@ MYQ_TO_HASS = {
 MYQ_GATEWAY = "myq_gateway"
 MYQ_COORDINATOR = "coordinator"
 
+CONF_PYMYQ_HEADERS = "pymyq_headers"
+
 # myq has some ratelimits in place
 # and 61 seemed to be work every time
 UPDATE_INTERVAL = 61

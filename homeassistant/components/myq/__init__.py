@@ -5,6 +5,7 @@ import logging
 
 import pymyq
 from pymyq.errors import InvalidCredentialsError, MyQError
+from pymyq.api import MYQ_HEADERS as PYMYQ_HEADERS
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
@@ -13,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import DOMAIN, MYQ_COORDINATOR, MYQ_GATEWAY, PLATFORMS, UPDATE_INTERVAL
+from .const import DOMAIN, MYQ_COORDINATOR, MYQ_GATEWAY, CONF_PYMYQ_HEADERS, PLATFORMS, UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +23,18 @@ async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the MyQ component."""
 
     hass.data.setdefault(DOMAIN, {})
+
+    # Replace default HTTP headers from pymyq
+    for name, value in config.get(DOMAIN, {}).get(CONF_PYMYQ_HEADERS, {}).items():
+        if value:
+            if name in PYMYQ_HEADERS:
+                _LOGGER.debug("Replacing pymyq HTTP header %s: %s (was %s)", name, value, PYMYQ_HEADERS[name])
+            else:
+                _LOGGER.debug("Adding pymyq HTTP header %s: %s", name, value)
+            PYMYQ_HEADERS[name] = value
+        elif name in PYMYQ_HEADERS:
+            _LOGGER.debug("Removing pymyq HTTP header %s (was %s)", name, PYMYQ_HEADERS[name])
+            del PYMYQ_HEADERS[name]
 
     return True
 
